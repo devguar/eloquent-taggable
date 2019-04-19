@@ -18,6 +18,12 @@ use Illuminate\Database\Query\JoinClause;
  */
 trait Taggable
 {
+    /**
+     * Property to control sequence on alias
+     *
+     * @var int
+     */
+    private $taggableAliasSequence = 0;
 
     /**
      * Boot the trait.
@@ -214,7 +220,7 @@ trait Taggable
             return $query->where(\DB::raw(1), 0);
         }
 
-        $alias = strtolower(__FUNCTION__);
+        $alias = $this->taggableCreateNewAlias(__FUNCTION__);
         $morphTagKeyName = $this->getQualifiedRelatedPivotKeyNameWithAlias($alias);
 
         return $this->prepareTableJoin($query, 'inner', $alias)
@@ -250,7 +256,7 @@ trait Taggable
 
         $tagKeys = $service->getTagModelKeys($normalized);
 
-        $alias = strtolower(__FUNCTION__);
+        $alias = $this->taggableCreateNewAlias(__FUNCTION__);
         $morphTagKeyName = $this->getQualifiedRelatedPivotKeyNameWithAlias($alias);
 
         return $this->prepareTableJoin($query, 'inner', $alias)
@@ -266,7 +272,7 @@ trait Taggable
      */
     public function scopeIsTagged(Builder $query): Builder
     {
-        $alias = strtolower(__FUNCTION__);
+        $alias = $this->taggableCreateNewAlias(__FUNCTION__);
         return $this->prepareTableJoin($query, 'inner', $alias);
     }
 
@@ -288,7 +294,7 @@ trait Taggable
         $tagKeys = $service->getTagModelKeys($normalized);
         $tagKeyList = implode(',', $tagKeys);
 
-        $alias = strtolower(__FUNCTION__);
+        $alias = $this->taggableCreateNewAlias(__FUNCTION__);
         $morphTagKeyName = $this->getQualifiedRelatedPivotKeyNameWithAlias($alias);
 
         $query = $this->prepareTableJoin($query, 'left', $alias)
@@ -320,7 +326,7 @@ trait Taggable
         $tagKeys = $service->getTagModelKeys($normalized);
         $tagKeyList = implode(',', $tagKeys);
 
-        $alias = strtolower(__FUNCTION__);
+        $alias = $this->taggableCreateNewAlias(__FUNCTION__);
         $morphTagKeyName = $this->getQualifiedRelatedPivotKeyNameWithAlias($alias);
 
         $query = $this->prepareTableJoin($query, 'left', $alias)
@@ -342,7 +348,7 @@ trait Taggable
      */
     public function scopeIsNotTagged(Builder $query): Builder
     {
-        $alias = strtolower(__FUNCTION__);
+        $alias = $this->taggableCreateNewAlias(__FUNCTION__);
         $morphForeignKeyName = $this->getQualifiedForeignPivotKeyNameWithAlias($alias);
 
         return $this->prepareTableJoin($query, 'left', $alias)
@@ -485,4 +491,18 @@ trait Taggable
             '.' . $morph->getForeignPivotKeyName();
     }
 
+    /**
+     * Create a new alias to use on scopes to be able to combine many scopes
+     *
+     * @param string $scope
+     *
+     * @return string
+     */
+    private function taggableCreateNewAlias(string $scope)
+    {
+        $this->taggableAliasSequence++;
+        $alias = strtolower($scope) . '_' . $this->taggableAliasSequence;
+
+        return $alias;
+    }
 }

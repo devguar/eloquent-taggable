@@ -261,13 +261,23 @@ Combining scopes:
 // but without one of the given tags 
 // i.e. everything NOT tagged "Cherry".
 // (returns Ids: 2, 3, 6, 7, 8)
+
 Model::withAnyTags('Apple,Banana')::withoutAnyTags('Cherry')->get();
+
 // Find models that are not tagged with all of the given tags,
 // i.e. everything not tagged "Apple AND Banana".
 // and models without any one of the given tags
 // i.e. everything not tagged "Cherry OR Durian".
 // (returns models with Ids: 2)
+
 Model::withoutAllTags('Apple,Banana')::withoutAnyTags('Cherry,Durian')->get();
+
+// Find models with any one of the given tags
+// i.e. everything tagged "Apple OR Banana".
+// AND tagged "Cherry OR Durian".
+// (returns Ids: 4, 6, 7, 8)
+
+Model::withAnyTags('Apple,Banana')::withAnyTags('Cherry,Durian')->get();
 ```
 
 Finally, you can easily find all the tags used across all instances of a model:

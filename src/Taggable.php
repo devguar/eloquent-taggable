@@ -225,7 +225,7 @@ trait Taggable
 
         return $this->prepareTableJoin($query, 'inner', $alias)
             ->whereIn($morphTagKeyName, $tagKeys)
-            ->havingRaw("COUNT({$morphTagKeyName}) = ?", [count($tagKeys)]);
+            ->havingRaw("COUNT(DISTINCT {$morphTagKeyName}) = ?", [count($tagKeys)]);
     }
 
     /**
